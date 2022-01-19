@@ -8,68 +8,24 @@
 ;;   You must not remove this notice, or any others, from this software.
 
 (ns qr-clj.core
-  (:import io.nayuki.qrcodegen.QrSegment
-           io.nayuki.qrcodegen.QrCode
-           io.nayuki.qrcodegen.QrCode$Ecc
-           java.awt.image.BufferedImage))
+  (:require [qr-clj.code :as qrc]
+            [qr-clj.segment :as qrs]))
 
-(defn ->byte-segment [^bytes data]
-  (QrSegment/makeBytes data))
+(defn encode-bytes
+  ([^bytes data scale border]
+   (encode-bytes data scale border qrc/default-ecl))
+  ([^bytes data scale border ecl]
+   (-> data
+       (qrs/->byte-segment)
+       (vector)
+       (qrc/segments ecl)
+       (qrc/qr->image scale border))))
 
-(defn ->numeric-segment [^String data]
-  (QrSegment/makeNumeric data))
-
-(defn ->alphanumeric-segment [^String data]
-  (QrSegment/makeAlphanumeric data))
-
-(defn ->segments [^String data]
-  (vec (QrSegment/makeSegments data)))
-
-(def ^:private error-correction-level
-  "% error toleration for each level:
-  `:ecl-low`      ~= 7%
-  `:ecl-medium`   ~= 15%
-  `:ecl-quartile` ~= 25%
-  `:ecl-high`     ~= 30%"
-  {:ecl-low QrCode$Ecc/LOW
-   :ecl-medium QrCode$Ecc/MEDIUM
-   :ecl-quartile QrCode$Ecc/QUARTILE
-   :ecl-high QrCode$Ecc/HIGH})
-
-(defn ^QrCode segments->qr
-  ([segments]
-   (segments->qr segments :ecl-high))
-  ([segments ecl]
-   (QrCode/encodeSegments segments (error-correction-level ecl)))
-  ([segments ecl min-version max-version mask boost-ecl]
-   (QrCode/encodeSegments segments
-                          (error-correction-level ecl)
-                          (int min-version)
-                          (int max-version)
-                          (int mask)
-                          boost-ecl)))
-
-(defn ^BufferedImage ->image
-  ([^QrCode qr scale border]
-   (->image qr scale border 0x000000 0xFFFFFF))
-  ([^QrCode qr scale border dark-color light-color]
-   (if (or (> border
-              (quot Integer/MAX_VALUE 2))
-           (> (+ (.size qr) (* border 2))
-              (quot Integer/MAX_VALUE scale)))
-
-     (throw "Scale or Border too large")
-
-     (let [dim (* (+ (.size qr) (* border 2)) scale)
-           img (BufferedImage. (int dim) (int dim) BufferedImage/TYPE_INT_RGB)]
-       (doseq [x (range (.getWidth img))
-               y (range (.getHeight img))]
-         (.setRGB img
-                  (int x)
-                  (int y)
-                  (if (.getModule qr
-                                  (int (- (quot x scale) border))
-                                  (int (- (quot y scale) border)))
-                    (int dark-color)
-                    (int light-color))))
-       img))))
+(defn encode-string
+  ([^String data scale border]
+   (encode-string data scale border qrc/default-ecl))
+  ([^String data scale border ecl]
+   (-> data
+       (qrs/->segments)
+       (qrc/segments ecl)
+       (qrc/qr->image scale border))))
