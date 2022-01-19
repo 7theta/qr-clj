@@ -7,13 +7,17 @@
 ;;   the terms of this license.
 ;;   You must not remove this notice, or any others, from this software.
 
-(defproject com.7theta/qr-clj "0.1.0"
-  :url "https://github.com/7theta/qr-clj"
-  :license {:name "MIT License"
-            :url "https://opensource.org/licenses/MIT"}
-  :dependencies [[org.clojure/clojure "1.10.3"]
-                 [io.nayuki/qrcodegen "1.7.0"]]
-  :profiles {:dev {:dependencies []
-                   :source-paths ["dev"]}}
-  :scm {:name "git"
-        :url "https://github.com/7theta/qr-clj"})
+(ns qr-clj.segment
+  (:import io.nayuki.qrcodegen.QrSegment))
+
+(defn ->byte-segment [^bytes data]
+  (QrSegment/makeBytes data))
+
+(defn ->numeric-segment [^String data]
+  (QrSegment/makeNumeric data))
+
+(defn ->alphanumeric-segment [^String data]
+  (QrSegment/makeAlphanumeric data))
+
+(defn ->segments [^String data]
+  (vec (QrSegment/makeSegments data)))
