@@ -11,7 +11,8 @@
   :url "https://github.com/7theta/qr-clj"
   :license {:name "MIT License"
             :url "https://opensource.org/licenses/MIT"}
-  :dependencies []
+  :dependencies [[org.clojure/clojure "1.10.3"]
+                 [io.nayuki/qrcodegen "1.7.0"]]
   :profiles {:dev {:dependencies []
                    :source-paths ["dev"]}}
   :scm {:name "git"
