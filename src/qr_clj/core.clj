@@ -9,23 +9,31 @@
 
 (ns qr-clj.core
   (:require [qr-clj.code :as qrc]
-            [qr-clj.segment :as qrs]))
+            [qr-clj.segment :as qrs])
+  (:import [java.io ByteArrayInputStream ByteArrayOutputStream]
+           [javax.imageio ImageIO]))
 
 (defn encode-bytes
   ([^bytes data scale border]
    (encode-bytes data scale border qrc/default-ecl))
   ([^bytes data scale border ecl]
-   (-> data
-       (qrs/->byte-segment)
-       (vector)
-       (qrc/segments ecl)
-       (qrc/qr->image scale border))))
+   (let [os (ByteArrayOutputStream.)]
+     (-> data
+         (qrs/->byte-segment)
+         (vector)
+         (qrc/segments->qr ecl)
+         (qrc/qr->image scale border)
+         (ImageIO/write "jpg", os))
+     (ByteArrayInputStream. (.toByteArray os)))))
 
 (defn encode-string
   ([^String data scale border]
    (encode-string data scale border qrc/default-ecl))
   ([^String data scale border ecl]
-   (-> data
-       (qrs/->segments)
-       (qrc/segments ecl)
-       (qrc/qr->image scale border))))
+   (let [os (ByteArrayOutputStream.)]
+     (-> data
+         (qrs/->segments)
+         (qrc/segments->qr ecl)
+         (qrc/qr->image scale border)
+         (ImageIO/write "jpg", os))
+     (ByteArrayInputStream. (.toByteArray os)))))

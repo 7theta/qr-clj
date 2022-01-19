@@ -40,7 +40,7 @@
 
 (defn ^BufferedImage qr->image
   ([^QrCode qr scale border]
-   (->image qr scale border 0x000000 0xFFFFFF))
+   (qr->image qr scale border 0x000000 0xFFFFFF))
   ([^QrCode qr scale border dark-color light-color]
    (if (or (> border
               (quot Integer/MAX_VALUE 2))
