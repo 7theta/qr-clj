@@ -7,6 +7,6 @@ A clojure wrapper for https://github.com/nayuki/QR-Code-generator
 
 ## Copyright and License
 
-Copyright © 2015-2022 7theta
+Copyright © 2022 7theta
 
 Distributed under the MIT License.
